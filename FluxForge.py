@@ -260,95 +260,85 @@ def crt_glitch(frames=80):
         time.sleep(0.03);print("\033[2J",end="")
     return ""
 
-def ascii_clock(ticks=200):
-    for _ in range(ticks):
+def ascii_clock():
+    try: secs=int(input("Show clock for how many seconds? ").strip() or "30")
+    except: secs=30
+    end=time.time()+max(1,secs)
+    while time.time()<end:
+        print("\033[2J\033[H",end="")
         tm=time.localtime();s=time.strftime("%H:%M:%S",tm);date=time.strftime("%d %b %Y",tm)
-        art=pyfiglet.figlet_format(s,font=random.choice(fonts))
-        p=random.choice(palettes)
-        print(colorize(art,p));print(" "*((TC()-len(date))//2)+date);time.sleep(1);print("\033[F"*(art.count("\n")+2),end="")
+        art=pyfiglet.figlet_format(s,font=random.choice(fonts));p=random.choice(palettes)
+        print(colorize(art,p));print(" "*max(0,(TC()-len(date))//2)+date)
+        time.sleep(1)
     return ""
 
-def random_art(iterations=60):
-    funcs=[heart,spiral,fractal_tree,particles,puls_rings,starfield,mandala,fire]
-    for _ in range(iterations):
-        clear();f=random.choice(funcs);args=[]
-        try: f(random.randint(5,18)) if f in (heart,spiral,) else f()
-        except: try: f()
-        except: pass
-        time.sleep(0.4)
-    return ""
-
-def save_out(txt):
-    if not txt: print(Fore.RED+"Nothing to save."); return
-    fn=input("Filename (art.txt): ").strip() or f"art_{int(time.time())}.txt"
-    if not fn.lower().endswith(".txt"): fn+=".txt"
-    try:
-        with open(fn,"w",encoding="utf-8") as f: f.write(stripc(txt))
-        print(Fore.GREEN+f"Saved: {fn}")
-    except Exception as e: print(Fore.RED+"Save failed:",e)
-
-def menu():
-    last=""
-    while True:
+def random_art(iterations=10):
+    funcs=[heart,spiral,fractal_tree,particles,puls_rings,starfield,mandala,fire,snow,particle_field]
+    for _ in range(max(1,min(20,iterations))):
+        clear()
+        f=random.choice(funcs)
         try:
-            print(Style.BRIGHT+Fore.GREEN+"\nMENU — choose:")
-            print("1) Fancy Text   2) Shapes   3) Animations   4) Canvas   5) Utilities   6) Save last .txt   7) Exit")
-            ch=input(Fore.CYAN+"Choice: ").strip()
-        except (KeyboardInterrupt,EOFError):
-            print("\nbye");break
-        if ch=="1":
-            clear(); last=fancy_text(None)
-        elif ch=="2":
-            clear(); print("Shapes: 1) Heart 2) Spiral 3) Fractal Tree 4) Sine Wave 5) Mandala")
-            s=input("Pick: ").strip()
-            if s=="1": last=heart(int(input("Size 6-40 (18): ").strip() or 18))
-            elif s=="2": last=spiral(int(input("Size 5-39 (19): ").strip() or 19))
-            elif s=="3": last=fractal_tree(int(input("Levels 3-10 (6): ").strip() or 6))
-            elif s=="4": last=sine_wave(input("Symbol (*): ").strip() or "*",int(input("Amp 3-12 (6): ").strip() or 6),float(input("Freq (0.12): ").strip() or 0.12),int(input("Rows (12): ").strip() or 12),int(input("Frames (120): ").strip() or 120))
-            elif s=="5": last=mandala(int(input("Radius (8-24): ").strip() or 14))
-            else: print(Fore.RED+"Invalid.")
-        elif ch=="3":
-            clear(); print("Anims: 1) DVD 2) Matrix 3) Particles 4) Rings 5) Lightning 6) Fire 7) Rain 8) Hypnosis 9) Starfield 10) CRT Glitch")
-            a=input("Pick: ").strip() or str(random.choice(range(1,11)))
-            if a=="1": last=dvd(input("Label (DVD): ").strip() or "DVD")
-            elif a=="2": last=matrix_rain()
-            elif a=="3": last=particles()
-            elif a=="4": last=puls_rings()
-            elif a=="5": last=lightning()
-            elif a=="6": last=fire()
-            elif a=="7": last=rain()
-            elif a=="8": last=hypnosis()
-            elif a=="9": last=starfield()
-            elif a=="10": last=crt_glitch()
-            else: print(Fore.RED+"Invalid.")
-        elif ch=="4":
-            clear(); print("Canvas: 1) Particle Field 2) Conway CA 3) Snow 4) Fire Field")
-            cc=input("Pick: ").strip()
-            if cc=="1": last=particle_field()
-            elif cc=="2": last=conway()
-            elif cc=="3": last=snow()
-            elif cc=="4": last=fire()
-            else: print(Fore.RED+"Invalid.")
-        elif ch=="5":
-            clear(); print("Utils: 1) ASCII Clock 2) Braille Pixelizer 3) Random Art 4) One-line Minify Save")
-            u=input("Pick: ").strip()
-            if u=="1": last=ascii_clock()
-            elif u=="2":
-                txt=input("Enter small text: ").strip() or "A";art=pyfiglet.figlet_format(txt,font=random.choice(fonts))
-                out="\n".join("".join("⠿" if c.strip() else " " for c in line) for line in art.splitlines());print(out);last=out
-            elif u=="3": last=random_art()
-            elif u=="4":
-                s=input("Paste text to minify: ")
-                m=re.sub(r'\s+',' ',s).strip()
-                fn=input("Filename (min.txt): ").strip() or "minified.txt"
-                with open(fn,"w",encoding="utf-8") as f: f.write(m)
-                print(Fore.GREEN+f"Saved: {fn}");last=m
-            else: print(Fore.RED+"Invalid.")
-        elif ch=="6":
-            save_out(last)
-        elif ch=="7":
-            print(Fore.YELLOW+"Shutting down.");break
-        else: print(Fore.RED+"Invalid.")
+            if f in (heart,spiral): f(random.randint(6,20))
+            else: f()
+        except: 
+            try: f()
+            except: pass
+        time.sleep(0.6)
+    return ""
+
+def mandelbrot(W=None,H=None,itermax=40):
+    W=W or min(120,TC());H=H or min(40,TL()-4)
+    out=[]
+    for j in range(H):
+        row=""
+        for i in range(W):
+            x0=(i-W/2)/ (W/4); y0=(j-H/2)/(H/4)
+            x=0.0;y=0.0;it=0
+            while x*x+y*y<=4 and it<itermax:
+                xt=x*x-y*y + x0; y=2*x*y + y0; x=xt; it+=1
+            chars=" .:-=+*#%@"
+            row+=chars[int(it/itermax*(len(chars)-1))]
+        out.append(row)
+    print("\n".join(out));return "\n".join(out)
+
+def lissajous(frames=120,A=10,B=20,a=3,b=2,delta=0.5):
+    W=TC();H=max(12,TL()-2);cx=W//2;cy=H//2
+    for t in range(frames):
+        buf=[[" "]*W for _ in range(H)]
+        for theta in [i*0.1 for i in range(0,628)]:
+            x=int(cx + A*math.sin(a*theta + delta*t*0.02)); y=int(cy + B*math.sin(b*theta))
+            if 0<=y<H and 0<=x<W: buf[y][x]=Fore.CYAN+"*"
+        print("\033[2J\033[H",end="");[print("".join(r)) for r in buf];time.sleep(0.04)
+    return ""
+
+def spectrum(frames=120,bands=80):
+    W=TC();H=max(8,TL()-2);bands=min(bands,W)
+    for _ in range(frames):
+        row=""
+        for i in range(bands):
+            h=random.randint(1,H); row+=Fore.MAGENTA+"█"*h+Fore.RESET+" "
+        print("\033[2J\033[H",end="");print(row);time.sleep(0.06)
+    return ""
+
+def typewriter_banner():
+    s=input("Banner text: ").strip() or "VISUAL";art=pyfiglet.figlet_format(s,font=random.choice(fonts))
+    lines=art.splitlines()
+    for i in range(1,len(lines)+1):
+        print("\033[2J\033[H",end="");print("\n".join(lines[:i]));time.sleep(0.18)
+    return art
+
+def maze(w=41,h=21):
+    W=max(21,min(79,w));H=max(11,min(39,h))
+    maze=[['#']*W for _ in range(H)]
+    def carve(x,y):
+        dirs=[(2,0),(-2,0),(0,2),(0,-2)]; random.shuffle(dirs)
+        for dx,dy in dirs:
+            nx,ny=x+dx,y+dy
+            if 1<=nx<W-1 and 1<=ny<H-1 and maze[ny][nx]=='#':
+                maze[ny][nx]=' '; maze[y+dy//2][x+dx//2]=' '
+                carve(nx,ny)
+    maze[1][1]=' '; carve(1,1)
+    print("\n".join("".join(row) for row in maze)); return "\n".join("".join(row) for row in maze)
 
 def particle_field(frames=120):
     cols=max(20,min(120,TC()));rows=max(10,min(40,TL()-4));parts=[]
@@ -377,5 +367,82 @@ def conway(cols=None,rows=None,gens=60):
                 nxt[y][x]=1 if (g[y][x] and s in (2,3)) or (not g[y][x] and s==3) else 0
         g=nxt; print("\033[2J\033[H",end=""); [print("".join([Fore.GREEN+"@" if c else " " for c in row])) for row in g]; time.sleep(0.07)
     return ""
+
+def save_out(txt):
+    if not txt: print(Fore.RED+"Nothing to save."); return
+    fn=input("Filename (art.txt): ").strip() or f"art_{int(time.time())}.txt"
+    if not fn.lower().endswith(".txt"): fn+=".txt"
+    try:
+        with open(fn,"w",encoding="utf-8") as f: f.write(stripc(txt))
+        print(Fore.GREEN+f"Saved: {fn}")
+    except Exception as e: print(Fore.RED+"Save failed:",e)
+
+def menu():
+    last=""
+    while True:
+        try:
+            print(Style.BRIGHT+Fore.GREEN+"\nMENU — choose:")
+            print("1) Fancy Text   2) Shapes   3) Animations   4) Patterns   5) Tools   6) Save last .txt   7) Exit")
+            ch=input(Fore.CYAN+"Choice: ").strip()
+        except (KeyboardInterrupt,EOFError):
+            print("\nbye");break
+        if ch=="1":
+            clear(); last=fancy_text(None)
+        elif ch=="2":
+            clear(); print("Shapes: 1) Heart 2) Spiral 3) Fractal Tree 4) Sine Wave 5) Mandala 6) Maze")
+            s=input("Pick: ").strip()
+            if s=="1": last=heart(int(input("Size 6-40 (18): ").strip() or 18))
+            elif s=="2": last=spiral(int(input("Size 5-39 (19): ").strip() or 19))
+            elif s=="3": last=fractal_tree(int(input("Levels 3-10 (6): ").strip() or 6))
+            elif s=="4": last=sine_wave(input("Symbol (*): ").strip() or "*",int(input("Amp 3-12 (6): ").strip() or 6),float(input("Freq (0.12): ").strip() or 0.12),int(input("Rows (12): ").strip() or 12),int(input("Frames (120): ").strip() or 120))
+            elif s=="5": last=mandala(int(input("Radius (8-24): ").strip() or 14))
+            elif s=="6": last=maze(int(input("Width (odd 21-79): ").strip() or 41),int(input("Height (odd 11-39): ").strip() or 21))
+            else: print(Fore.RED+"Invalid.")
+        elif ch=="3":
+            clear(); print("Anims: 1) DVD 2) Matrix 3) Particles 4) Rings 5) Lightning 6) Fire 7) Rain 8) Hypnosis 9) Starfield 10) CRT Glitch 11) Spectrum 12) Lissajous")
+            a=input("Pick: ").strip() or str(random.choice(range(1,13)))
+            if a=="1": last=dvd(input("Label (DVD): ").strip() or "DVD")
+            elif a=="2": last=matrix_rain()
+            elif a=="3": last=particles()
+            elif a=="4": last=puls_rings()
+            elif a=="5": last=lightning()
+            elif a=="6": last=fire()
+            elif a=="7": last=rain()
+            elif a=="8": last=hypnosis()
+            elif a=="9": last=starfield()
+            elif a=="10": last=crt_glitch()
+            elif a=="11": last=spectrum()
+            elif a=="12": last=lissajous()
+            else: print(Fore.RED+"Invalid.")
+        elif ch=="4":
+            clear(); print("Patterns: 1) Mandala 2) Mandelbrot 3) Particle Field 4) Conway 5) Snow")
+            p=input("Pick: ").strip()
+            if p=="1": last=mandala(int(input("Radius (8-24): ").strip() or 14))
+            elif p=="2": last=mandelbrot()
+            elif p=="3": last=particle_field()
+            elif p=="4": last=conway()
+            elif p=="5": last=snow()
+            else: print(Fore.RED+"Invalid.")
+        elif ch=="5":
+            clear(); print("Tools: 1) ASCII Clock 2) Braille Pixelizer 3) Random Art 4) Typewriter Banner 5) One-line Minify Save")
+            u=input("Pick: ").strip()
+            if u=="1": last=ascii_clock()
+            elif u=="2":
+                txt=input("Enter small text: ").strip() or "A";art=pyfiglet.figlet_format(txt,font=random.choice(fonts))
+                out="\n".join("".join("⠿" if c.strip() else " " for c in line) for line in art.splitlines());print(out);last=out
+            elif u=="3": last=random_art(10)
+            elif u=="4": last=typewriter_banner()
+            elif u=="5":
+                s=input("Paste text to minify: ")
+                m=re.sub(r'\s+',' ',s).strip()
+                fn=input("Filename (min.txt): ").strip() or "minified.txt"
+                with open(fn,"w",encoding="utf-8") as f: f.write(m)
+                print(Fore.GREEN+f"Saved: {fn}");last=m
+            else: print(Fore.RED+"Invalid.")
+        elif ch=="6":
+            save_out(last)
+        elif ch=="7":
+            print(Fore.YELLOW+"Shutting down.");break
+        else: print(Fore.RED+"Invalid.")
 
 if __name__=="__main__": menu()
