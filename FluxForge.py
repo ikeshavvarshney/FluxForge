@@ -50,12 +50,16 @@ def fancy_text(t=None):
     out="\n".join(colorize(l,p,random.randint(0,5)) for l in art.splitlines());print(out);return out
 
 def heart(size=18):
-    s=max(6,min(40,size));out=[]
-    for y in [i*0.5 for i in range(int(-s),s)]:
+    s=max(6,min(40,size))
+    W= int(s*3); H=int(s*1.6)
+    out=[]
+    for j in range(H,-H,-1):
         row=""
-        for x in [i*0.5 for i in range(int(-s*2),int(s*2))]:
-            eq=(x**2 + y**2 -1)**3 - x**2 * y**3
-            row+=Fore.RED+"❤" if eq<=0 else " "
+        for i in range(-W,W):
+            x = i/(W/2)
+            y = j/(H/2)
+            val = (x**2 + y**2 - 1)**3 - x**2 * y**3
+            row += Fore.RED+"❤" if val<=0 else " "
         out.append(row)
     out="\n".join(out);print(out);return out
 
@@ -110,8 +114,8 @@ def dvd(label="DVD",frames=240):
             if r==y: print(" "*x+color+label)
             else: print()
         x+=vx;y+=vy
-        if x<=0 or x>=cols-len(label)-1: vx*=-1;color=random.choice([Fore.RED,Fore.GREEN,Fore.CYAN,Fore.MAGENTA,Fore.YELLOW])
-        if y<=0 or y>=rows-1: vy*=-1;color.random.choice([Fore.RED,Fore.GREEN,Fore.CYAN,Fore.MAGENTA,Fore.YELLOW])
+        if x<=0 or x>=cols-len(label)-1: vx*=-1; color=random.choice([Fore.RED,Fore.GREEN,Fore.CYAN,Fore.MAGENTA,Fore.YELLOW])
+        if y<=0 or y>=rows-1: vy*=-1; color=random.choice([Fore.RED,Fore.GREEN,Fore.CYAN,Fore.MAGENTA,Fore.YELLOW])
         time.sleep(0.02)
     return ""
 
@@ -280,7 +284,7 @@ def random_art(iterations=10):
         try:
             if f in (heart,spiral): f(random.randint(6,20))
             else: f()
-        except: 
+        except:
             try: f()
             except: pass
         time.sleep(0.6)
@@ -382,14 +386,26 @@ def menu():
     while True:
         try:
             print(Style.BRIGHT+Fore.GREEN+"\nMENU — choose:")
-            print("1) Fancy Text   2) Shapes   3) Animations   4) Patterns   5) Tools   6) Save last .txt   7) Exit")
+            print("1) Fancy Text")
+            print("2) Shapes")
+            print("3) Animations")
+            print("4) Patterns")
+            print("5) Tools")
+            print("6) Save last .txt")
+            print("7) Exit")
             ch=input(Fore.CYAN+"Choice: ").strip()
         except (KeyboardInterrupt,EOFError):
             print("\nbye");break
         if ch=="1":
             clear(); last=fancy_text(None)
         elif ch=="2":
-            clear(); print("Shapes: 1) Heart 2) Spiral 3) Fractal Tree 4) Sine Wave 5) Mandala 6) Maze")
+            clear(); print("Shapes:")
+            print("1) Heart")
+            print("2) Spiral")
+            print("3) Fractal Tree")
+            print("4) Sine Wave")
+            print("5) Mandala")
+            print("6) Maze")
             s=input("Pick: ").strip()
             if s=="1": last=heart(int(input("Size 6-40 (18): ").strip() or 18))
             elif s=="2": last=spiral(int(input("Size 5-39 (19): ").strip() or 19))
@@ -399,7 +415,19 @@ def menu():
             elif s=="6": last=maze(int(input("Width (odd 21-79): ").strip() or 41),int(input("Height (odd 11-39): ").strip() or 21))
             else: print(Fore.RED+"Invalid.")
         elif ch=="3":
-            clear(); print("Anims: 1) DVD 2) Matrix 3) Particles 4) Rings 5) Lightning 6) Fire 7) Rain 8) Hypnosis 9) Starfield 10) CRT Glitch 11) Spectrum 12) Lissajous")
+            clear(); print("Animations:")
+            print("1) DVD")
+            print("2) Matrix")
+            print("3) Particles")
+            print("4) Rings")
+            print("5) Lightning")
+            print("6) Fire")
+            print("7) Rain")
+            print("8) Hypnosis")
+            print("9) Starfield")
+            print("10) CRT Glitch")
+            print("11) Spectrum")
+            print("12) Lissajous")
             a=input("Pick: ").strip() or str(random.choice(range(1,13)))
             if a=="1": last=dvd(input("Label (DVD): ").strip() or "DVD")
             elif a=="2": last=matrix_rain()
@@ -415,7 +443,12 @@ def menu():
             elif a=="12": last=lissajous()
             else: print(Fore.RED+"Invalid.")
         elif ch=="4":
-            clear(); print("Patterns: 1) Mandala 2) Mandelbrot 3) Particle Field 4) Conway 5) Snow")
+            clear(); print("Patterns:")
+            print("1) Mandala")
+            print("2) Mandelbrot")
+            print("3) Particle Field")
+            print("4) Conway")
+            print("5) Snow")
             p=input("Pick: ").strip()
             if p=="1": last=mandala(int(input("Radius (8-24): ").strip() or 14))
             elif p=="2": last=mandelbrot()
@@ -424,7 +457,12 @@ def menu():
             elif p=="5": last=snow()
             else: print(Fore.RED+"Invalid.")
         elif ch=="5":
-            clear(); print("Tools: 1) ASCII Clock 2) Braille Pixelizer 3) Random Art 4) Typewriter Banner 5) One-line Minify Save")
+            clear(); print("Tools:")
+            print("1) ASCII Clock")
+            print("2) Braille Pixelizer")
+            print("3) Random Art")
+            print("4) Typewriter Banner")
+            print("5) One-line Minify Save")
             u=input("Pick: ").strip()
             if u=="1": last=ascii_clock()
             elif u=="2":
